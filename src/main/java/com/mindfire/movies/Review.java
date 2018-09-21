@@ -5,21 +5,28 @@ public class Review {
 	private int ratingInStars;
 	private String reviewStatement;
 	
+	public Review() {
+		sourceName = "";
+		ratingInStars = (Integer) null;
+		reviewStatement = "";
+		
+	}
 	public Review(String source, int rating, String review) {
 		sourceName = source;
 		ratingInStars =  rating;
 		reviewStatement = review;
 	}
 	
-	public String getSource() {
+	public String getSourceName() {
 		return sourceName;
 	}
 	
-	public int getRating() {
+	public int getRatingInStars() {
 		return ratingInStars;
 	}
 	
-	public String getReview() {
+	public String getReviewStatement() {
 		return reviewStatement;
 	}
+
 }

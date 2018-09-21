@@ -1,18 +1,16 @@
-package com.mindfire;
+package com.mindfire.servlets;
 
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.mindfire.movies.Movie;
-import com.mindfire.movies.Review;
-import com.mindfire.utility.Date;
+import com.mindfire.utility.MovieDBAPI;
 
 /**
  * This is the servlet for handling the search actions.
@@ -20,23 +18,21 @@ import com.mindfire.utility.Date;
  * @author satyad
  *
  */
-@WebServlet(urlPatterns = { "/home" }, initParams = { @WebInitParam(name = "appName", value = "reviewApp") })
+@WebServlet(urlPatterns = { "/search" })
 public class SearchServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static String APP_NAME;
+	private static final MovieDBAPI movieDBAPI = new MovieDBAPI();
 
-	@Override
-	public void init() throws ServletException {
-		APP_NAME = getServletContext().getInitParameter("appName");
-	}
+	private static Movie movie;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		Movie movie = new Movie("Shawsank Redemption", new Date(1, 2, 1987), new Review("IMDB", 5, "Awesome") );
+		movie = movieDBAPI.fetchSourceAndReview(request.getParameter("searchQuery"));
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
 		request.setAttribute("movie", movie);
+		request.setAttribute("movieName", request.getParameter("searchQuery"));
 		dispatcher.forward(request, response);
 	}
 
