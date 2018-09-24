@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.mindfire.exception.MovieReviewException;
 import com.mindfire.movies.Movie;
 import com.mindfire.movies.Review;
 
@@ -19,31 +20,43 @@ public class MovieDBAPI {
 	private static final String USER_NAME = "postgres";
 	private static final String PASSWORD = "mindfire";
 
-	private static Properties property = new Properties();
 
-	public MovieDBAPI() {
-		try {
-			Class.forName(DRIVER);
-		} catch (ClassNotFoundException e) {
-		}
+	private static final Properties property = new Properties();
+
+	private static Connection connection;
+	private static Statement statement;
+
+	static {
 		property.setProperty("user", USER_NAME);
 		property.setProperty("password", PASSWORD);
+		try {
+			Class.forName(DRIVER);
+			connection = DriverManager.getConnection(URL, property);
+			statement = connection.createStatement();
+		} catch (ClassNotFoundException e) {
+			new MovieReviewException("Driver Not Found");
+		} catch (SQLException e) {
+			new MovieReviewException("Error while setting up connection");
+		}
 	}
 
-	public Movie fetchSourceAndReview(String name) {
+	public Movie fetchSourceAndReview( String name) {
 		Movie movie = null;
+		if (QueryHelper.doesHaveSpecial(name)) {
+			name = QueryHelper.reformat(name);
+		}
 
 		try {
-			Connection connection = DriverManager.getConnection(URL, property);
-			Statement statement = connection.createStatement();
 			String query = "Select * from movie_review_db where moviename =" + "'" + name + "'"
 					+ "order by rating desc";
 			ResultSet rs = statement.executeQuery(query);
 			movie = getMovie(rs, name);
 
-		} catch (SQLException ex) {
-
+		} catch (Exception ex) {
+			ex.getCause();
+			new MovieReviewException(ex.getMessage());
 		}
+
 		return movie;
 	}
 
@@ -57,6 +70,20 @@ public class MovieDBAPI {
 			}
 		}
 		return new Movie(name, reviews);
+	}
+
+	public void insertAndUpdate(String movieName, Integer rating, String reviewStatement, String userName) {
+
+		try {
+			Connection connection = DriverManager.getConnection(URL, property);
+			Statement statement = connection.createStatement();
+			String query = String.format("Insert into movie_review_db values (DEFAULT,'%s', %d, '%s', '%s') returning id;",
+					movieName, rating, userName, reviewStatement);
+			statement.executeQuery(query);
+
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 }

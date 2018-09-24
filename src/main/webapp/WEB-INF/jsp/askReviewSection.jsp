@@ -1,8 +1,14 @@
-<div id="askReview" class="hidden container-fluid">
-	<p class="center customerReview">Your review:</p>
-	<input type="text" class="form-control" id="rating" maxlength=5
-		placeholder="stars..."></input>
-	<textArea rows="10" cols="270" placeholder="Your review....."
-		id="review" class="form-control"> </textArea>
-	<button id="submitReview" onClick="submitReview()">submit</button>
+<div id="askReview" class="container-fluid">
+	<form action="/reviews/submit" method="Get">
+		<div class="form-group">
+			<label>Submit Review:</label> <br>
+			<input type = "text" id = "rating" name = "rating" placeholder = "rating">
+			<textarea class="form-control" rows="5" id="review"
+				name="reviewStatement"></textarea>
+		</div>
+		<button type="submit" id="reviewSubmission" class="btn btn-lg">Submit</button>
+		<input type="text" id="movieName" name="movieName" class="hidden"
+			value="${movie.movieName }">
+	</form>
 </div>
+
